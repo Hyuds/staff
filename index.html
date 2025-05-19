@@ -23,11 +23,10 @@
   <body>
     <button class="main-button" onclick="openStaffCallForm()">🛎 직원 호출하기</button>
     <script>
-      // 여기에 본인의 Apps Script Web App URL을 입력하세요
-      const GAS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbyWReOObWE5IKi5_1BfHXZ81JyHdrfD0ofStj7C4VIvm9wsiRUwAWByIirDoXaRHZVr/exec';
-
       function openStaffCallForm() {
         const newWindow = window.open('', '_blank', 'width=500,height=600,resizable=yes');
+        const GAS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycby3_RTZjllqDoTZbk0ZEdCHmZRAsF9jCe0loP082IQfpCEWQ1C3yfHZaFW_ZmXUVeTE/exec';
+
         newWindow.document.write(`
           <!DOCTYPE html>
           <html>
@@ -71,12 +70,15 @@
               <div class="spinner"></div>
             </div>
             <script>
+              const GAS_WEBAPP_URL = "${GAS_WEBAPP_URL}";
+
               function toggleQty(item) {
                 const checkbox = document.getElementById(item + "Box");
                 const qtyInput = document.getElementById(item + "Qty");
                 qtyInput.style.display = checkbox.checked ? "inline-block" : "none";
                 if (!checkbox.checked) qtyInput.value = "";
               }
+
               function submitForm() {
                 const data = {
                   spoon: document.getElementById("spoonBox").checked ? parseInt(document.getElementById("spoonQty").value || 0) : 0,
@@ -85,21 +87,21 @@
                   comeToTable: document.getElementById("comeToTable").checked,
                   etc: document.getElementById("etc").checked
                 };
-                if (data.spoon === 0 && data.chopsticks === 0 && data.smallCup === 0 && !data.comeToTable && !data.etc) {
-                  alert("최소 하나 이상의 요청을 선택하세요.");
-                  return;
-                }
                 const tableNumber = document.getElementById("table-number").value;
                 if (!tableNumber) {
                   alert("테이블 번호를 입력해 주세요.");
                   return;
                 }
-                document.getElementById('formContainer').style.display = 'none';
-                document.getElementById('loadingContainer').style.display = 'block';
+                if (data.spoon === 0 && data.chopsticks === 0 && data.smallCup === 0 && !data.comeToTable && !data.etc) {
+                  alert("최소 하나 이상의 요청을 선택하세요.");
+                  return;
+                }
                 data.tableNumber = tableNumber;
 
-                // fetch로 Apps Script Web App에 POST 요청
-                fetch('${GAS_WEBAPP_URL}', {
+                document.getElementById('formContainer').style.display = 'none';
+                document.getElementById('loadingContainer').style.display = 'block';
+
+                fetch(GAS_WEBAPP_URL, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify(data)
@@ -122,6 +124,7 @@
                   showError(error.message || '네트워크 오류가 발생했습니다.');
                 });
               }
+
               function showError(msg) {
                 document.body.innerHTML = \`
                   <div class="error-container" style="text-align:center;padding:30px;background:white;border-radius:10px;box-shadow:0 0 20px rgba(0,0,0,0.3);">
@@ -131,6 +134,7 @@
                   </div>
                 \`;
               }
+
               function resetForm() {
                 document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
                 document.querySelectorAll('input[type="number"]').forEach(input => {
